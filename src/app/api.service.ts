@@ -29,6 +29,7 @@ export class ApiService {
     });
   }
 
+
   private handleError(error: HttpErrorResponse) {
     console.log('Full error response:', error);
     console.log('Error status:', error.status);

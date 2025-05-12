@@ -1,13 +1,25 @@
-import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { authGuard } from './auth.guard';
-import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
-import { UserDashboardComponent } from './user-dashboard/user-dashboard.component';
-
-
-export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'admin/dashboard', component: AdminDashboardComponent },
-  { path: 'user/dashboard', component: UserDashboardComponent },
-  { path: '**', redirectTo: '/login' }
+import {Routes} from '@angular/router';
+import {LoginComponent} from './login/login.component';
+import { authGuard } from './authGuard';
+import {roleGuard} from './roleGuard';
+export let routes: Routes;
+routes = [
+  {path: 'login', component: LoginComponent},
+  {
+    path: 'admin/dashboard',
+    canActivate: [authGuard, roleGuard('ROLE_ADMIN_ROLE')],
+    loadComponent: () => import('./admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+  },
+  {
+    path: 'user/dashboard',
+    canActivate: [authGuard, roleGuard('ROLE_USER_ROLE')],
+    loadComponent: () => import('./user-dashboard/user-dashboard.component').then(m => m.UserDashboardComponent)
+  },
+  {
+    path: 'admin/annotateurs',
+    canActivate: [authGuard, roleGuard('ROLE_ADMIN_ROLE')],
+    loadComponent: () => import('./annotateurs/annotateurs.component').then(m => m.AnnotatorsComponent)
+  },
+  {path: '**', redirectTo: '/login'}
 ];
+

@@ -2,7 +2,6 @@ import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +9,6 @@ import { NgIf } from '@angular/common';
   standalone: true,
   imports: [
     RouterOutlet,
-    NgIf,
     CommonModule
   ],
   styleUrls: ['./app.component.css']
