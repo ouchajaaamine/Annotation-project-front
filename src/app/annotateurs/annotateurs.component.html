@@ -1,0 +1,194 @@
+<div class="annotators-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-edit"></i>
+      </div>
+      <h1 class="sidebar-title">Annotation Platform</h1>
+    </div>
+    <nav class="sidebar-menu">
+      <a href="/admin/dashboard" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/annotateurs" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-users"></i> Annotateurs
+      </a>
+      <a href="#" class="sidebar-menu-item">
+        <i class="fas fa-database"></i>
+        <span>Datasets</span>
+      </a>
+      <a href="#" class="sidebar-menu-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Statistiques</span>
+      </a>
+      <a href="#" class="sidebar-menu-item">
+        <i class="fas fa-cog"></i>
+        <span>Paramètres</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-info">
+          <h4 class="user-name">Admin User</h4>
+          <p class="user-role">Administrateur</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="annotators-dashboard">
+    <!-- Notification -->
+    <div class="notification" *ngIf="notification.show" [ngClass]="notification.type">
+      {{ notification.message }}
+    </div>
+    <h1>
+      <span class="blue">Annotators</span> Management
+    </h1>
+    <p class="subtitle">Manage and organize your team of annotators</p>
+    <!-- Stat Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">TOTAL ANNOTATORS</div>
+        <div class="stat-value">{{ annotators.length }}</div>
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">ACTIVE ANNOTATORS</div>
+        <div class="stat-value">{{ activeAnnotatorsCount }}</div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">INACTIVE ANNOTATORS</div>
+        <div class="stat-value">{{ inactiveAnnotatorsCount }}</div>
+        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+      </div>
+      <button class="add-btn" (click)="openAddModal()">+ Add Annotator</button>
+    </div>
+    <!-- Search bar and filters -->
+    <div class="search-filter-container">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search annotators..." 
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch()"
+        />
+      </div>
+      <div class="filter-box">
+        <button class="filter-btn" (click)="toggleFilterMenu()">
+          <i class="fas fa-filter"></i> Filters
+          <i class="fas fa-chevron-down" [class.rotated]="showFilterMenu"></i>
+        </button>
+        <div class="filter-menu" *ngIf="showFilterMenu">
+          <div class="filter-section">
+            <h4>Status</h4>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input type="checkbox" [(ngModel)]="filters.active" (ngModelChange)="onFilterChange()">
+                <span>Active</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" [(ngModel)]="filters.inactive" (ngModelChange)="onFilterChange()">
+                <span>Inactive</span>
+              </label>
+            </div>
+          </div>
+          <div class="filter-section">
+            <h4>Sort By</h4>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input type="radio" name="sort" value="name" [(ngModel)]="sortBy" (ngModelChange)="onFilterChange()">
+                <span>Name</span>
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort" value="status" [(ngModel)]="sortBy" (ngModelChange)="onFilterChange()">
+                <span>Status</span>
+              </label>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="clear-btn" (click)="clearFilters()">Clear All</button>
+            <button class="apply-btn" (click)="applyFilters()">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Annotators Table -->
+    <div class="table-container" *ngIf="!loading">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>User Name</th>
+            <th style="text-align:center;">
+              <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <span style="margin-bottom:2px;">
+                  <label class="switch" style="margin:0;">
+                    <input type="checkbox" disabled style="visibility:hidden;">
+                  </label>
+                </span>
+                <span>Status</span>
+              </div>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of filteredAnnotators">
+            <td>{{ a.id }}</td>
+            <td>{{ a.prenom }}</td>
+            <td>{{ a.nom }}</td>
+            <td>{{ a.login }}</td>
+            <td style="text-align:center;">
+              <label class="switch">
+                <input type="checkbox" [checked]="!a.deleted" [disabled]="updatingStatus && updatingStatus[a.id!]" (change)="onToggleStatus(a, $event)">
+                <span class="slider round"></span>
+              </label>
+            </td>
+            <td>
+              <button class="icon-btn" title="Edit" (click)="openEditModal(a)"><i class="fas fa-edit"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading">Loading...</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Edit' : 'Add' }} Annotator</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="addAnnotator()">
+        <div class="form-group">
+          <label for="nom">Last Name</label>
+          <input type="text" id="nom" [(ngModel)]="newAnnotator.nom" name="nom" required>
+        </div>
+        <div class="form-group">
+          <label for="prenom">First Name</label>
+          <input type="text" id="prenom" [(ngModel)]="newAnnotator.prenom" name="prenom" required>
+        </div>
+        <div class="form-group">
+          <label for="login">Username</label>
+          <input type="text" id="login" [(ngModel)]="newAnnotator.login" name="login" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="cancel-btn" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="submit-btn">{{ isEditMode ? 'Save Changes' : 'Add Annotator' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
