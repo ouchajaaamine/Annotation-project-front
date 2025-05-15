@@ -103,37 +103,47 @@
         </div>
         <!-- Annotators Section -->
         <div class="annotators-section">
-          <h3><i class="fas fa-users"></i> Annotators</h3>
-          <div class="annotator-controls">
-            <input
-              type="text"
-              placeholder="Search annotators..."
-              [ngModel]="searchTerm"
-              (ngModelChange)="onSearchAnnotator($event)"
-              class="search-bar"
-            />
-            <select [ngModel]="annotationFilter" (ngModelChange)="onFilterChange($event)" class="filter-select">
-              <option value="all">All</option>
-              <option value="annotated">With annotation</option>
-              <option value="not_annotated">Without annotation</option>
-            </select>
-          </div>
-          <div class="annotator-list">
-            <div class="annotator-card" *ngFor="let a of filteredAnnotators">
+          <h3>Annotators ({{annotators.length}})</h3>
+          <div class="annotators-grid">
+            <div class="annotator-card" *ngFor="let annotator of annotators">
               <div class="annotator-info">
-                <span class="annotator-name">{{ a.nom }} {{ a.prenom }}</span>
-                <span class="annotator-login">({{ a.login }})</span>
+                <i class="fas fa-user"></i>
+                <span class="annotator-name">{{annotator.prenom}} {{annotator.nom}}</span>
               </div>
-              <div class="annotator-status" [class.annotated]="isAnnotatorAnnotated(a)">
-                {{ isAnnotatorAnnotated(a) ? 'Annotated' : 'Not annotated' }}
+              <div class="annotator-status" [class.status-annotated]="annotator.annotations?.length > 0">
+                <i class="fas" [class.fa-check-circle]="annotator.annotations?.length > 0" 
+                   [class.fa-times-circle]="!annotator.annotations?.length"></i>
+                {{ annotator.annotations?.length > 0 ? 'Annotated' : 'Not Annotated' }}
+                <span *ngIf="annotator.annotations?.length">({{annotator.annotations.length}})</span>
               </div>
             </div>
-            <div *ngIf="filteredAnnotators.length === 0" class="no-annotators">No annotators found.</div>
           </div>
         </div>
         <!-- Text Pairs Section -->
         <div class="pairs-section">
           <h3><i class="fas fa-align-left"></i> Text Pairs</h3>
+          <div class="search-controls">
+            <div class="search-wrapper">
+              <i class="fas fa-search search-icon"></i>
+              <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search in text pairs..." 
+                [value]="searchTerm"
+                (input)="onSearch($event)"
+              >
+            </div>
+            <select 
+              class="filter-select" 
+              [(ngModel)]="annotationFilter" 
+              (change)="filterPairs()"
+            >
+              <option value="all">All Pairs</option>
+              <option value="annotated">Annotated</option>
+              <option value="not_annotated">Not Annotated</option>
+            </select>
+          </div>
+          
           <div class="table-container">
             <table class="pairs-table">
               <thead>
@@ -145,7 +155,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let couple of coupleTexts | slice: (currentPage-1) * itemsPerPage : currentPage * itemsPerPage">
+                <tr *ngFor="let couple of filteredPairs | slice: (currentPage-1) * itemsPerPage : currentPage * itemsPerPage">
                   <td>{{ couple.id }}</td>
                   <td>{{ couple.text_1 }}</td>
                   <td>{{ couple.text_2 }}</td>
@@ -154,7 +164,7 @@
                       {{ getAnnotationClass(couple.id) }}
                     </span>
                     <ng-template #notAnnotated>
-                      <span class="unannotated"></span>
+                      <span class="unannotated">Not Annotated</span>
                     </ng-template>
                   </td>
                 </tr>

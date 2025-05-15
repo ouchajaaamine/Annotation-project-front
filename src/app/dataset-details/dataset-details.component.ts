@@ -20,6 +20,11 @@ interface DatasetRaw {
   fileType: string;
   tasks: Task[];
 }
+interface Annotator {
+  name: string;
+  hasAnnotated: boolean;
+  // autres propriétés existantes...
+}
 
 @Component({
   selector: 'app-dataset-details',
@@ -43,24 +48,28 @@ export class DatasetDetailsComponent implements OnInit {
   datasetInfo: any = null;
   annotations: any[] = [];
   annotators: any[] = [];
-  filteredAnnotators: any[] = [];
+  filteredPairs: any[] = [];
+  annotationFilter: string = 'all';
   searchTerm: string = '';
-  annotationFilter: 'all' | 'annotated' | 'not_annotated' = 'all';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
+    const datasetId = this.route.snapshot.params['id'];
+    this.loadDataset(datasetId);
+  }
+
+  loadDataset(datasetId: string) {
     this.http.get('http://localhost:8080/api/admin/datasets').subscribe({
       next: (data: any) => {
         if (data && data.datasets) {
-          this.datasetInfo = data.datasets.find((d: any) => d.id == id);
+          this.datasetInfo = data.datasets.find((d: any) => d.id == datasetId);
         }
-        this.http.get(`http://localhost:8080/api/admin/datasets/details/${id}?page=0&size=1000`).subscribe({
+        this.http.get(`http://localhost:8080/api/admin/datasets/details/${datasetId}?page=0&size=1000`).subscribe({
           next: (details: any) => {
             this.dataset = details;
             this.coupleTexts = (details.coupleTexts || []).map((c: any) => ({
@@ -69,13 +78,21 @@ export class DatasetDetailsComponent implements OnInit {
               text_2: c.text_2
             }));
             this.totalPages = Math.ceil(this.coupleTexts.length / this.itemsPerPage);
-            this.http.get(`http://localhost:8080/api/admin/tasks/datasets/${id}/annotators`).subscribe((annotators: any) => {
-              this.annotators = Array.isArray(annotators) ? annotators : [];
-              this.filteredAnnotators = this.annotators;
-              this.annotations = this.annotators.flatMap(a => a.annotations || []);
-              this.applyAnnotatorFilters();
+            
+            // Une seule requête pour les annotateurs
+            this.http.get(`http://localhost:8080/api/admin/tasks/datasets/${datasetId}/annotators`).subscribe({
+              next: (annotators: any) => {
+                console.log('Raw annotators data:', annotators); // Pour debug
+                this.annotators = annotators;
+                this.annotations = this.annotators.flatMap(a => a.annotations || []);
+              },
+              error: (error) => {
+                console.error('Error loading annotators:', error);
+              }
             });
+            
             this.loading = false;
+            this.filterPairs();
           },
           error: () => {
             this.notFound = true;
@@ -88,32 +105,6 @@ export class DatasetDetailsComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  applyAnnotatorFilters() {
-    this.filteredAnnotators = this.annotators.filter(a => {
-      // Filtrage par annotation
-      const hasAnnotation = (a.annotations || []).some((ann: any) => ann.coupleText);
-      if (this.annotationFilter === 'annotated' && !hasAnnotation) return false;
-      if (this.annotationFilter === 'not_annotated' && hasAnnotation) return false;
-      // Filtrage par recherche
-      const search = this.searchTerm.toLowerCase();
-      return (
-        a.nom.toLowerCase().includes(search) ||
-        a.prenom.toLowerCase().includes(search) ||
-        a.login.toLowerCase().includes(search)
-      );
-    });
-  }
-
-  onSearchAnnotator(term: any) {
-    this.searchTerm = typeof term === 'string' ? term : (term?.target?.value || '');
-    this.applyAnnotatorFilters();
-  }
-
-  onFilterChange(filter: any) {
-    this.annotationFilter = typeof filter === 'string' ? filter : (filter?.target?.value || 'all');
-    this.applyAnnotatorFilters();
   }
 
   backToList() {
@@ -141,5 +132,39 @@ export class DatasetDetailsComponent implements OnInit {
 
   isAnnotatorAnnotated(a: any): boolean {
     return (a.annotations || []).some((ann: any) => ann.coupleText);
+  }
+
+  filterPairs() {
+    if (!this.coupleTexts) return;
+
+    // Reset filtered pairs
+    this.filteredPairs = [...this.coupleTexts];
+
+    // Appliquer le filtre d'annotation
+    if (this.annotationFilter !== 'all') {
+      this.filteredPairs = this.filteredPairs.filter(pair => {
+        const hasAnnotation = this.getAnnotationClass(pair.id) !== null;
+        return this.annotationFilter === 'annotated' ? hasAnnotation : !hasAnnotation;
+      });
+    }
+
+    // Appliquer la recherche
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      this.filteredPairs = this.filteredPairs.filter(pair => 
+        pair.text_1.toLowerCase().includes(searchLower) || 
+        pair.text_2.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Mettre à jour le nombre total de pages
+    this.totalPages = Math.ceil(this.filteredPairs.length / this.itemsPerPage);
+    // Revenir à la première page après un filtrage
+    this.currentPage = 1;
+  }
+
+  onSearch(event: any) {
+    this.searchTerm = event.target.value;
+    this.filterPairs();
   }
 }

@@ -322,18 +322,18 @@
 
 /* Table Styles */
 .table-container {
-  background: #fff;
+  background: white;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   overflow-x: auto;
 }
 
 .pairs-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .pairs-table th,
@@ -344,13 +344,31 @@
 }
 
 .pairs-table th {
-  background-color: #f8fafc;
-  color: #6366f1;
+  background: #f8fafc;
+  color: #334155;
   font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.pairs-table td {
+  color: #475569;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pairs-table td i {
+  margin-right: 0.5rem;
 }
 
 .pairs-table tr:hover {
   background-color: #f8fafc;
+}
+
+.unannotated {
+  color: #94a3b8;
+  font-style: italic;
 }
 
 /* Pagination Styles */
@@ -359,18 +377,18 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .pagination button {
-  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
-  color: #fff;
+  background: #3b82f6;
+  color: white;
   border: none;
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-weight: 500;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
 
 .pagination button:disabled {
@@ -379,12 +397,65 @@
 }
 
 .pagination button:not(:disabled):hover {
-  background: linear-gradient(90deg, #2563eb 0%, #4f46e5 100%);
+  background: #2563eb;
 }
 
 .pagination span {
   color: #64748b;
   font-weight: 500;
+}
+
+/* Search Controls Styling */
+.search-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-select {
+  min-width: 150px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #1e293b;
+  appearance: none;
+  background-image: url("data:image/svg+xml,...");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
 }
 
 .classes-section {
@@ -421,21 +492,72 @@
   color: #495057;
 }
 
-.pairs-table td {
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pairs-table td i {
-  margin-right: 0.5rem;
-}
-
 .fa-check-circle {
   color: #28a745;
 }
 
 .fa-times-circle {
   color: #dc3545;
+}
+
+/* Nouveaux styles pour les cards d'annotateurs */
+.annotators-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.annotator-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.annotator-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.annotator-info i {
+  color: #6366f1;
+  font-size: 1.2rem;
+}
+
+.annotator-name {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.annotator-status {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-annotated {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.annotators-section {
+  margin-top: 2rem;
+}
+
+.annotators-section h3 {
+  color: #6366f1;
+  margin-bottom: 1.2rem;
+  font-size: 1.3rem;
+}
+
+.annotator-status i {
+  margin-right: 0.5rem;
 }
