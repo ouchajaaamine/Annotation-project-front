@@ -1,0 +1,66 @@
+<div class="datasets-layout">
+  <!-- Sidebar adaptée pour l'utilisateur -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-edit"></i>
+      </div>
+      <h1 class="sidebar-title">Annotations</h1>
+    </div>
+    <nav class="sidebar-menu">
+      <a href="/user/dashboard" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/user/tasks" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-tasks"></i>
+        <span>My Tasks</span>
+      </a>
+      <a href="/user/history" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-history"></i>
+        <span>Annotation History</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-info">
+          <h4 class="user-name">{{ userName }}</h4>
+          <p class="user-role">Annotator</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <h2 class="page-title">My Tasks</h2>
+    <div *ngIf="tasks && tasks.length > 0; else noTasks">
+      <table class="tasks-table">
+        <thead>
+          <tr>
+            <th>Task ID</th>
+            <th>Deadline</th>
+            <th>Progress</th>
+            <th>Annotate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of tasks">
+            <td>{{ task.id }}</td>
+            <td>{{ task.dateLimite | date }}</td>
+            <td>{{ taskProgressMap[task.id] || 0 }}%</td>
+            <td>
+              <button class="annotate-btn" (click)="goToAnnotate(task.id)">Acceder</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noTasks>
+      <div class="no-tasks">No tasks assigned.</div>
+    </ng-template>
+  </main>
+</div>

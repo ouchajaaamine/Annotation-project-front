@@ -1,1 +1,87 @@
-<p>user-dashboard works!</p>
+<div class="datasets-layout">
+  <!-- Sidebar adaptée pour l'utilisateur -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-edit"></i>
+      </div>
+      <h1 class="sidebar-title">Annotations</h1>
+    </div>
+    <nav class="sidebar-menu">
+        <a href="/user/dashboard" routerLinkActive="active" class="sidebar-menu-item">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+      <a href="user/tasks" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-tasks"></i>
+        <span>My Tasks</span>
+      </a>
+      <a href="/user/history" routerLinkActive="active" class="sidebar-menu-item">
+        <i class="fas fa-history"></i>
+        <span>Annotation History</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-info">
+          <h4 class="user-name">User</h4>
+          <p class="user-role">Annotator</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="navbar">
+      <div class="navbar-left">
+        <h2 class="page-title">Annotator Dashboard</h2>
+        <p class="subtitle">View and manage your annotation tasks</p>
+      </div>
+      <div class="navbar-right">
+        <a class="add-btn" href="/logout">Log out</a>
+      </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-info">
+          <p class="stat-label">Pending Tasks</p>
+          <h3 class="stat-value">12</h3>
+        </div>
+        <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+      </div>
+      <div class="stat-card secondary">
+        <div class="stat-info">
+          <p class="stat-label">Completed Tasks</p>
+          <h3 class="stat-value">34</h3>
+        </div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="stat-card tertiary">
+        <div class="stat-info">
+          <p class="stat-label">Urgent Tasks</p>
+          <h3 class="stat-value">3</h3>
+        </div>
+        <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+      </div>
+      <div class="stat-card quaternary">
+        <div class="stat-info">
+          <p class="stat-label">Accuracy Rate</p>
+          <h3 class="stat-value">94.2%</h3>
+        </div>
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+      </div>
+    </div>
+
+    <!-- Ici tu peux ajouter d'autres sections du dashboard utilisateur -->
+
+    <footer class="footer">
+      <span>© 2025 Annotation Platform. All rights reserved.</span>
+    </footer>
+  </main>
+</div>

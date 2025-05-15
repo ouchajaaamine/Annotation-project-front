@@ -1,0 +1,188 @@
+<div class="datasets-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-edit"></i>
+        </div>
+        <h1 class="sidebar-title">Annotation Platform</h1>
+    </div>
+
+    <nav class="sidebar-menu">
+        <a href="/admin/dashboard" class="sidebar-menu-item active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a class="sidebar-menu-item" href="/admin/annotateurs" routerLinkActive="active">
+            <i class="fas fa-users"></i> Annotateurs
+          </a>
+        <a href="/admin/datasets" class="sidebar-menu-item">
+            <i class="fas fa-database"></i>
+            <span>Datasets</span>
+        </a>
+        <a href="#" class="sidebar-menu-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Statistiques</span>
+        </a>
+        <a href="#" class="sidebar-menu-item">
+            <i class="fas fa-cog"></i>
+            <span>Paramètres</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-info">
+                <h4 class="user-name">Admin User</h4>
+                <p class="user-role">Administrateur</p>
+            </div>
+        </div>
+    </div>
+</aside>
+  <main class="main-content">
+    <div class="details-layout">
+      <ng-container *ngIf="loading">
+        <div class="loading">Loading dataset details...</div>
+      </ng-container>
+      <ng-container *ngIf="!loading && notFound">
+        <div class="not-found">Dataset not found.</div>
+        <button class="back-btn" (click)="backToList()">Back to Datasets</button>
+      </ng-container>
+      <ng-container *ngIf="!loading && dataset">
+        <div class="details-header">
+          <h1><span class="blue">Dataset:</span> {{ dataset.name }}</h1>
+          <p class="subtitle">Detailed information about the dataset</p>
+          <button class="back-btn" (click)="backToList()">
+            <i class="fas fa-arrow-left"></i> Back to Datasets
+          </button>
+        </div>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <p class="stat-label">Total Text Pairs</p>
+              <h3 class="stat-value">{{ totalTextPairs }}</h3>
+            </div>
+            <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <p class="stat-label">Assigned Text Pairs</p>
+              <h3 class="stat-value">{{ assignedTextPairs }}</h3>
+            </div>
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <p class="stat-label">Unassigned Text Pairs</p>
+              <h3 class="stat-value">{{ unassignedTextPairs }}</h3>
+            </div>
+            <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <p class="stat-label">Progress</p>
+              <h3 class="stat-value">{{ progress | number:'1.0-2' }}%</h3>
+            </div>
+            <div class="stat-icon"><i class="fas fa-wave-square"></i></div>
+          </div>
+        </div>
+        <!-- Dataset Info Card -->
+        <div class="info-card">
+          <h3><i class="fas fa-database"></i> Dataset Information</h3>
+          <div class="info-row">
+            <div><b>ID</b><br>{{ datasetInfo?.id }}</div>
+            <div><b>Name</b><br>{{ datasetInfo?.name }}</div>
+          </div>
+          <div class="info-row">
+            <div><b>Description</b><br>{{ datasetInfo?.description }}</div>
+            <div><b>File Type</b><br>{{ datasetInfo?.fileType }}</div>
+          </div>
+        </div>
+        <!-- Annotators Section -->
+        <div class="annotators-section">
+          <h3><i class="fas fa-users"></i> Annotators</h3>
+          <div class="annotator-controls">
+            <input
+              type="text"
+              placeholder="Search annotators..."
+              [ngModel]="searchTerm"
+              (ngModelChange)="onSearchAnnotator($event)"
+              class="search-bar"
+            />
+            <select [ngModel]="annotationFilter" (ngModelChange)="onFilterChange($event)" class="filter-select">
+              <option value="all">All</option>
+              <option value="annotated">With annotation</option>
+              <option value="not_annotated">Without annotation</option>
+            </select>
+          </div>
+          <div class="annotator-list">
+            <div class="annotator-card" *ngFor="let a of filteredAnnotators">
+              <div class="annotator-info">
+                <span class="annotator-name">{{ a.nom }} {{ a.prenom }}</span>
+                <span class="annotator-login">({{ a.login }})</span>
+              </div>
+              <div class="annotator-status" [class.annotated]="isAnnotatorAnnotated(a)">
+                {{ isAnnotatorAnnotated(a) ? 'Annotated' : 'Not annotated' }}
+              </div>
+            </div>
+            <div *ngIf="filteredAnnotators.length === 0" class="no-annotators">No annotators found.</div>
+          </div>
+        </div>
+        <!-- Text Pairs Section -->
+        <div class="pairs-section">
+          <h3><i class="fas fa-align-left"></i> Text Pairs</h3>
+          <div class="table-container">
+            <table class="pairs-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Text 1</th>
+                  <th>Text 2</th>
+                  <th>Annotation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let couple of coupleTexts | slice: (currentPage-1) * itemsPerPage : currentPage * itemsPerPage">
+                  <td>{{ couple.id }}</td>
+                  <td>{{ couple.text_1 }}</td>
+                  <td>{{ couple.text_2 }}</td>
+                  <td>
+                    <span *ngIf="getAnnotationClass(couple.id); else notAnnotated">
+                      {{ getAnnotationClass(couple.id) }}
+                    </span>
+                    <ng-template #notAnnotated>
+                      <span class="unannotated"></span>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Classes Section -->
+        <div class="classes-section">
+          <h3><i class="fas fa-tags"></i> Available Classes</h3>
+          <div class="classes-grid">
+            <div class="class-card" *ngFor="let classe of datasetInfo?.classesPossibles">
+              <i class="fas fa-tag"></i>
+              <span>{{ classe.textClass }}</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </main>
+</div>

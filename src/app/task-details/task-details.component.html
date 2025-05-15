@@ -1,0 +1,59 @@
+<div class="annotation-container">
+  <div class="header">
+    <h2>Task Annotation</h2>
+    <button class="dashboard-btn" routerLink="/user/tasks">Back to Dashboard</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="main-content">
+    <div class="progress-bar">
+      <div class="progress" [style.width.%]="((currentIndex+1)/totalCouples)*100"></div>
+    </div>
+
+    <div class="task-details-card">
+      <div class="text-card"><strong>Text 1:</strong> "{{ currentCouple?.text_1 }}"</div>
+      <div class="text-card"><strong>Text 2:</strong> "{{ currentCouple?.text_2 }}"</div>
+      <div class="status-section">
+        <div class="status-badge" [class.annotated]="currentCouple?.status === 'Annoté'">
+          {{ currentCouple?.status || 'Non annoté' }}
+        </div>
+        <div *ngIf="currentCouple?.annotationClass" class="annotation-class">
+          Classe sélectionnée: <span class="class-badge">{{ currentCouple?.annotationClass }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation-section">
+      <h3>Select Annotation Class</h3>
+      <div class="class-buttons">
+        <button *ngFor="let c of classes"
+                [class.selected]="selectedClass === c.textClass"
+                (click)="selectedClass = c.textClass">
+          {{ c.textClass }}
+        </button>
+      </div>
+      <button class="save-btn" 
+              [disabled]="!selectedClass || selectedClass === currentCouple?.annotationClass" 
+              (click)="annotateCurrentCouple()">
+        {{ currentCouple?.status === 'Annoté' ? 'Update Annotation' : 'Save Annotation' }}
+      </button>
+    </div>
+
+    <div *ngIf="notification" class="notification">
+      {{ notification }}
+    </div>
+
+    <div class="navigation">
+      <button (click)="goToPreviousCouple()" [disabled]="currentIndex === 0">Previous</button>
+      <span>Page {{ currentIndex + 1 }} of {{ totalCouples }}</span>
+      <button (click)="goToNextCouple()" [disabled]="currentIndex === totalCouples - 1">Next</button>
+    </div>
+  </div>
+</div>
